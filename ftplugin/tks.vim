@@ -2,7 +2,7 @@ fun! TaxiAliases(findstart, base)
     if a:findstart
         let line = getline('.')
         let start = col('.') - 1
-        while start > 0 && line[start - 1 ] =~ '\a'
+        while start > 0 && line[start - 1 ] =~ '\w'
             let start -= 1
         endwhile
         return start
