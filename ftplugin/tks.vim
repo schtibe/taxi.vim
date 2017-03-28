@@ -20,3 +20,29 @@ fun! TaxiAliases(findstart, base)
 endfun
 
 set omnifunc=TaxiAliases
+
+
+fun! TaxiStatus()
+    let winnr = bufwinnr('^_taxistatus$')
+    if ( winnr >  0 ) 
+        execute winnr . 'wincmd w' 
+        execute 'normal ggdG'
+    else
+        set splitbelow
+        2new _taxistatus
+        setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile nowrap
+    endif
+
+    let status = systemlist('taxi status')
+    for line in status
+        if line =~ '^Total'
+            let result = line
+        endif
+    endfor
+
+    :call append(0, [ result ])
+    :wincmd k 
+
+endfun
+
+autocmd BufWritePost *.tks :call TaxiStatus()
