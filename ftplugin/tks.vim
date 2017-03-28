@@ -21,14 +21,13 @@ endfun
 
 set omnifunc=TaxiAliases
 
-
 fun! TaxiStatus()
     let winnr = bufwinnr('^_taxistatus$')
-    if ( winnr >  0 ) 
-        execute winnr . 'wincmd w' 
+    if ( winnr >  0 )
+        execute winnr . 'wincmd w'
         execute 'normal ggdG'
     else
-        set splitbelow
+        setl splitbelow
         2new _taxistatus
         setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile nowrap
     endif
@@ -40,9 +39,8 @@ fun! TaxiStatus()
         endif
     endfor
 
-    :call append(0, [ result ])
-    :wincmd k 
-
+    call append(0, [ result ])
+    wincmd k
 endfun
 
 autocmd BufWritePost *.tks :call TaxiStatus()
