@@ -8,6 +8,7 @@ Vim plugin for the [taxi timesheeting tool](https://github.com/sephii/taxi/)
 * Syntax highlighting
 * Alias completion
 * Output of the current total when saving the buffer
+* Aligning the timesheet entries
 
 
 ## Installation
