@@ -1,4 +1,13 @@
+" Set the omnifunc to be able to complete the aliases via <ctrl-x> <ctrl-o>
+set omnifunc=TaxiAliases
+
+let s:pat = '^\(\w\+\)\s\+\([0-9:?-]\+\)\s\+\(.*\)$'
+autocmd BufWritePost *.tks :call s:taxi_status()
+autocmd QuitPre *.tks :call s:taxi_status_close()
+autocmd BufWritePre *.tks :call TaxiFormatFile()
+
 fun! TaxiAliases(findstart, base)
+    " Complete string under the cursor to the aliases available in taxi
     if a:findstart
         let line = getline('.')
         let start = col('.') - 1
@@ -19,9 +28,10 @@ fun! TaxiAliases(findstart, base)
     endif
 endfun
 
-set omnifunc=TaxiAliases
 
-fun! TaxiStatus()
+fun! s:taxi_status()
+    " Create a scratch window below that contains the total line
+    " of the taxi status output
     let winnr = bufwinnr('^_taxistatus$')
     if ( winnr >  0 )
         execute winnr . 'wincmd w'
@@ -44,7 +54,8 @@ fun! TaxiStatus()
     wincmd k
 endfun
 
-fun! TaxiStatusClose()
+fun! s:taxi_status_close()
+    " Close the status scratch window
     let winnr = bufwinnr('^_taxistatus$')
     if ( winnr >  0 )
         execute winnr . 'wincmd w'
@@ -52,11 +63,9 @@ fun! TaxiStatusClose()
     endif
 endfun
 
-autocmd BufWritePost *.tks :call TaxiStatus()
 
-let s:pat = '^\(\w\+\)\s\+\([0-9:?-]\+\)\s\+\(.*\)$'
-
-fun! _str_pad(str, len)
+fun! s:str_pad(str, len)
+    " Right pad a string with zeroes
     let str_len = len(a:str)
     let diff = a:len - str_len + 4
     let space = repeat(' ', diff)
@@ -64,17 +73,18 @@ fun! _str_pad(str, len)
     return a:str . space
 endfun
 
-fun! TaxiFormatLine(lnum, col_sizes)
+fun! s:taxi_format_line(lnum, col_sizes)
+    " Format a line in taxi
     let line = getline(a:lnum)
     let parts = matchlist(line, s:pat)
-    " the separator
-    let alias = _str_pad(parts[1], a:col_sizes[0])
-    let time  = _str_pad(parts[2], a:col_sizes[1])
+    let alias = s:str_pad(parts[1], a:col_sizes[0])
+    let time  = s:str_pad(parts[2], a:col_sizes[1])
 
     call setline(a:lnum, alias . time . parts[3])
 endfun
 
 fun! TaxiFormatFile()
+    " Format the taxi file
     let data_lines = []
     let col_sizes = [0, 0, 0]
     for line_nr in range(1, line('$'))
@@ -92,10 +102,6 @@ fun! TaxiFormatFile()
     endfor
 
     for line in data_lines
-        call TaxiFormatLine(line, col_sizes)
+        call s:taxi_format_line(line, col_sizes)
     endfor
 endfun
-
-autocmd QuitPre *.tks :call TaxiStatusClose()
-autocmd BufWritePre *.tks :call TaxiFormatFile()
-
