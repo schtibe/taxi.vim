@@ -32,6 +32,7 @@ fun! TaxiStatus()
         setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile nowrap
     endif
 
+    let result = "Could not read the status"
     let status = systemlist('taxi status')
     for line in status
         if line =~ '^Total'
