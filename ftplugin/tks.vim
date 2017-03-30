@@ -21,7 +21,9 @@ fun! TaxiAliases(findstart, base)
         for alias in aliases
             let parts = split(alias)
             if parts[1] =~ '^' . a:base
-                call add(res, parts[1])
+                let alias = parts[1]
+                let text = join(parts[3:], ' ')
+                call add(res, { 'word': alias, 'menu': text })
             endif
         endfor
         return res
