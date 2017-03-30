@@ -43,6 +43,14 @@ fun! TaxiStatus()
     wincmd k
 endfun
 
+fun! TaxiStatusClose()
+    let winnr = bufwinnr('^_taxistatus$')
+    if ( winnr >  0 )
+        execute winnr . 'wincmd w'
+        execute 'wincmd q'
+    endif
+endfun
+
 autocmd BufWritePost *.tks :call TaxiStatus()
 
 let s:pat = '^\(\w\+\)\s\+\([0-9:?-]\+\)\s\+\(.*\)$'
@@ -87,5 +95,6 @@ fun! TaxiFormatFile()
     endfor
 endfun
 
+autocmd QuitPre *.tks :call TaxiStatusClose()
 autocmd BufWritePre *.tks :call TaxiFormatFile()
 
