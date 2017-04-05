@@ -1,10 +1,24 @@
 " Set the omnifunc to be able to complete the aliases via <ctrl-x> <ctrl-o>
 set omnifunc=TaxiAliases
+set complete+=o
 
 let s:pat = '^\(\w\+\)\s\+\([0-9:?-]\+\)\s\+\(.*\)$'
+autocmd BufReadPost *.tks :call s:assemble_taxi_aliases()
 autocmd BufWritePost *.tks :call s:taxi_status()
 autocmd QuitPre *.tks :call s:taxi_status_close()
 autocmd BufWritePre *.tks :call TaxiFormatFile()
+
+let s:aliases = []
+
+fun! s:assemble_taxi_aliases()
+    let r_aliases = systemlist("taxi alias")
+    for alias in r_aliases
+        let parts = split(alias)
+        let alias = parts[1]
+        let text = join(parts[3:], ' ')
+        call add(s:aliases, [ alias, text])
+    endfor
+endfun
 
 fun! TaxiAliases(findstart, base)
     " Complete string under the cursor to the aliases available in taxi
@@ -17,13 +31,9 @@ fun! TaxiAliases(findstart, base)
         return start
     else
         let res = []
-        let aliases = systemlist("taxi alias")
-        for alias in aliases
-            let parts = split(alias)
-            if parts[1] =~ '^' . a:base
-                let alias = parts[1]
-                let text = join(parts[3:], ' ')
-                call add(res, { 'word': alias, 'menu': text })
+        for alias in s:aliases
+            if alias[0] =~ '^' . a:base
+                call add(res, { 'word': alias[0], 'menu': alias[1] })
             endif
         endfor
         return res
