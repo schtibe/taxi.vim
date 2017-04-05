@@ -1,7 +1,5 @@
 " Set the omnifunc to be able to complete the aliases via <ctrl-x> <ctrl-o>
 set omnifunc=TaxiAliases
-set complete+=o
-
 let s:pat = '^\(\w\+\)\s\+\([0-9:?-]\+\)\s\+\(.*\)$'
 autocmd BufReadPost *.tks :call s:assemble_taxi_aliases()
 autocmd BufWritePost *.tks :call s:taxi_status()
