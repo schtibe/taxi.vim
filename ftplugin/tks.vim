@@ -2,22 +2,39 @@
 set omnifunc=TaxiAliases
 let s:pat = '^\(\w\+\)\s\+\([0-9:?-]\+\)\s\+\(.*\)$'
 
-autocmd BufReadPost  *.tks :call s:assemble_taxi_aliases()
+autocmd BufNewFile,BufRead *.tks :call s:assemble_taxi_aliases()
 autocmd BufWritePost *.tks :call s:taxi_status()
 autocmd QuitPre      *.tks :call s:taxi_status_close()
 autocmd BufWritePre  *.tks :call TaxiFormatFile()
 
 let s:aliases = []
 
-fun! s:assemble_taxi_aliases()
-    let r_aliases = systemlist("taxi alias")
-    for alias in r_aliases
-        let parts = split(alias)
-        let alias = parts[1]
-        let text = join(parts[3:], ' ')
-        call add(s:aliases, [ alias, text])
+fun! s:assemble_handler(job_id, data, event) dict
+    " Gather the aliases
+    for alias in a:data
+        if alias != ''
+            let parts = split(alias)
+            let alias = parts[1]
+            let text = join(parts[3:], ' ')
+            call add(s:aliases, [ alias, text])
+        endif
     endfor
 endfun
+
+fun! s:update_handler(job_id, data, event) dict
+    " When taxi update is donw, run taxi alias
+    call jobstart(['taxi', 'alias'], s:alias_callbacks)
+endfun
+
+let s:alias_callbacks = {
+            \ 'on_stdout': function('s:assemble_handler')
+            \}
+let s:update_callbacks = { 
+            \    'on_stdout': function('s:update_handler')
+            \}
+
+" Run the taxi update
+call jobstart(['taxi', 'update'], s:update_callbacks)
 
 fun! TaxiAliases(findstart, base)
     " Complete string under the cursor to the aliases available in taxi
