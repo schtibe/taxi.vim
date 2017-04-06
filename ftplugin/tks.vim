@@ -94,11 +94,17 @@ endfun
 
 fun! s:str_pad(str, len)
     " Right pad a string with zeroes
+    " Left pad it when it starts with - 
+    let indent = repeat(' ', 4)
     let str_len = len(a:str)
-    let diff = a:len - str_len + 4
+    let diff = a:len - str_len
     let space = repeat(' ', diff)
 
-    return a:str . space
+    if a:str[0] == "-"
+        return space . a:str . indent
+    else
+        return a:str . space . indent
+    endif
 endfun
 
 fun! s:taxi_format_line(lnum, col_sizes)
