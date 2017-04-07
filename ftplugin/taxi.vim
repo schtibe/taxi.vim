@@ -144,3 +144,6 @@ fun! TaxiFormatFile()
         call s:taxi_format_line(line, col_sizes)
     endfor
 endfun
+
+" Call the function at least once when the script is loaded
+call TaxiAssmbleAliases()
