@@ -40,3 +40,10 @@ it.
 I did not write the syntax file, so thanks to whoever wrote it and contributed 
 to it. To me it made sense to include this here to have a single point of
 vim taxi functionality.
+
+
+## Bugs
+
+* Sometimes the loading of the aliases take too long, then the completion 
+    won't work from the begining
+* The status buffer on the bottom does not always get closed correctly
