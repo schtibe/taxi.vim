@@ -16,7 +16,8 @@ fun! s:assemble_handler(job_id, data, event) dict
     for alias in a:data
         if alias != ''
             let parts = split(alias)
-            if len(parts) > 0
+            " Todo: check the output
+            if len(parts) > 1
                 let alias = parts[1]
                 let text = join(parts[3:], ' ')
                 call add(s:aliases, [ alias, text])
