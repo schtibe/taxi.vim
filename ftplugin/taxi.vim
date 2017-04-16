@@ -5,7 +5,7 @@ let s:pat = '^\(\w\+\)\s\+\([0-9:?-]\+\)\s\+\(.*\)$'
 
 autocmd BufNewFile,BufRead *.tks :call TaxiAssmbleAliases()
 autocmd BufWritePost *.tks :call s:taxi_status()
-autocmd QuitPre      *.tks :call s:taxi_status_close()
+autocmd QuitPre      <buffer> :call s:taxi_status_close()
 autocmd BufWritePre  *.tks :call TaxiFormatFile()
 
 let s:aliases = []
