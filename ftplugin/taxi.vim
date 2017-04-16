@@ -7,6 +7,7 @@ autocmd BufNewFile,BufRead *.tks :call TaxiAssmbleAliases()
 autocmd BufWritePost *.tks :call s:taxi_status()
 autocmd QuitPre      <buffer> :call s:taxi_status_close()
 autocmd BufWritePre  *.tks :call TaxiFormatFile()
+autocmd InsertEnter  <buffer> :call TaxiInsertEnter()
 
 let s:aliases = []
 
@@ -144,6 +145,12 @@ fun! TaxiFormatFile()
     for line in data_lines
         call s:taxi_format_line(line, col_sizes)
     endfor
+endfun
+
+fun! TaxiInsertEnter()
+    if col('.') == 1
+        call feedkeys("\<c-x>\<c-o>", 'n')
+    endif
 endfun
 
 " Call the function at least once when the script is loaded
