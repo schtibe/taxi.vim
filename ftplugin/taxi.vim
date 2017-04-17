@@ -2,6 +2,7 @@
 set omnifunc=TaxiAliases
 set completeopt+=longest
 let s:pat = '^\(\w\+\)\s\+\([0-9:?-]\+\)\s\+\(.*\)$'
+let s:cache_file = $HOME."/.local/share/nvim/taxi_aliases"
 
 autocmd BufNewFile,BufRead *.tks :call TaxiAssmbleAliases()
 autocmd BufWritePost *.tks :call s:taxi_status()
@@ -10,30 +11,55 @@ autocmd BufWritePre  *.tks :call TaxiFormatFile()
 autocmd InsertEnter  <buffer> :call TaxiInsertEnter()
 
 let s:aliases = []
+let s:aliases_raw = "" 
 
-fun! s:assemble_handler(job_id, data, event) dict
+
+fun! s:process_aliases(job_id, data, event)
     " Gather the aliases
     for alias in a:data
         if alias != ''
             let parts = split(alias)
-            " Todo: check the output
-            if len(parts) > 1
+            if len(parts) > 2
                 let alias = parts[1]
                 let text = join(parts[3:], ' ')
-                call add(s:aliases, [ alias, text])
+                let value = [alias, text]
+
+                if index(s:aliases, value) == -1
+                    call add(s:aliases, value)
+                endif
             endif
         endif
     endfor
 endfun
 
+fun! s:cache_aliases(job_id, data, event)
+    let cache_aliases = []
+    for alias in s:aliases
+        call add(cache_aliases, join(alias, "|"))
+    endfor
+    call writefile(cache_aliases,  s:cache_file)
+endfun
+
 fun! s:update_handler(job_id, data, event) dict
-    " When taxi update is donw, run taxi alias
+    " When taxi update is done, run taxi alias
     call jobstart(['taxi', 'alias'], s:alias_callbacks)
 endfun
 
+fun! s:taxi_read_aliases()
+    let cached_aliases = readfile(s:cache_file)
+    for alias in cached_aliases
+        let parts = split(alias, "|")
+        if len(parts) > 1
+            call add(s:aliases, [parts[0], parts[1]])
+        endif
+    endfor
+endfun
+
 fun! TaxiAssmbleAliases()
+    call s:taxi_read_aliases()
     let s:alias_callbacks = {
-                \ 'on_stdout': function('s:assemble_handler')
+                \ 'on_stdout': function('s:process_aliases'),
+                \ 'on_exit': function('s:cache_aliases')
                 \}
     let s:update_callbacks = { 
                 \    'on_stdout': function('s:update_handler')
