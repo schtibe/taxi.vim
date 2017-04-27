@@ -1,7 +1,7 @@
 " Set the omnifunc to be able to complete the aliases via <ctrl-x> <ctrl-o>
 set omnifunc=TaxiAliases
 set completeopt+=longest
-let s:pat = '^\(\w\+\)\s\+\([0-9:?-]\+\)\s\+\(.*\)$'
+let s:pat = '^\([a-zA-Z_?]\+\)\s\+\([0-9:?-]\+\)\s\+\(.*\)$'
 let s:cache_file = $HOME."/.local/share/nvim/taxi_aliases"
 
 autocmd BufNewFile,BufRead *.tks :call TaxiAssmbleAliases()
