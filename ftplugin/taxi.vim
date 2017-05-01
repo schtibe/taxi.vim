@@ -47,6 +47,7 @@ fun! s:update_handler(job_id, data, event) dict
 endfun
 
 fun! s:taxi_read_aliases()
+    let s:aliases = []
     let cached_aliases = readfile(s:cache_file)
     for alias in cached_aliases
         let parts = split(alias, "|")
@@ -95,7 +96,6 @@ endfun
 fun! s:taxi_status()
     " Create a scratch window below that contains the total line
     " of the taxi status output
-
     if s:is_closing
         return
     endif
