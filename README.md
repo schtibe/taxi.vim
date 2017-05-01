@@ -46,4 +46,3 @@ vim taxi functionality.
 
 * The alias loading thing seems a bit unstable yet. Also, I'm not a 100% sure
     that new aliases are loaded correctly
-* The status buffer on the bottom does not always get closed correctly

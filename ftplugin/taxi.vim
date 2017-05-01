@@ -11,7 +11,8 @@ autocmd BufWritePre  *.tks :call TaxiFormatFile()
 autocmd InsertEnter  <buffer> :call TaxiInsertEnter()
 
 let s:aliases = []
-let s:aliases_raw = "" 
+let s:aliases_raw = ""
+let s:is_closing = 0
 
 
 fun! s:process_aliases(job_id, data, event)
@@ -61,7 +62,7 @@ fun! TaxiAssmbleAliases()
                 \ 'on_stdout': function('s:process_aliases'),
                 \ 'on_exit': function('s:cache_aliases')
                 \}
-    let s:update_callbacks = { 
+    let s:update_callbacks = {
                 \    'on_stdout': function('s:update_handler')
                 \}
 
@@ -94,6 +95,11 @@ endfun
 fun! s:taxi_status()
     " Create a scratch window below that contains the total line
     " of the taxi status output
+
+    if s:is_closing
+        return
+    endif
+
     let winnr = bufwinnr('^_taxistatus$')
     if ( winnr >  0 )
         execute winnr . 'wincmd w'
@@ -117,6 +123,7 @@ fun! s:taxi_status()
 endfun
 
 fun! s:taxi_status_close()
+    let s:is_closing = 1
     " Close the status scratch window
     let winnr = bufwinnr('^_taxistatus$')
     if ( winnr >  0 )
@@ -128,7 +135,7 @@ endfun
 
 fun! s:str_pad(str, len)
     " Right pad a string with zeroes
-    " Left pad it when it starts with - 
+    " Left pad it when it starts with -
     let indent = repeat(' ', 4)
     let str_len = len(a:str)
     let diff = a:len - str_len
