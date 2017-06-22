@@ -5,8 +5,8 @@ let s:pat = '^\([a-zA-Z0-9_?]\+\)\s\+\([0-9:?-]\+\)\s\+\(.*\)$'
 let s:cache_file = $HOME."/.local/share/nvim/taxi_aliases"
 
 autocmd BufNewFile,BufRead *.tks :call TaxiAssmbleAliases()
-autocmd BufWritePost *.tks :call s:taxi_status()
-autocmd QuitPre      <buffer> :call s:taxi_status_close()
+autocmd BufWritePost *.tks :call s:taxi_balance()
+autocmd QuitPre      <buffer> :call s:taxi_balance_close()
 autocmd BufWritePre  *.tks :call TaxiFormatFile()
 autocmd InsertEnter  <buffer> :call TaxiInsertEnter()
 
@@ -93,34 +93,34 @@ fun! TaxiAliases(findstart, base)
 endfun
 
 
-fun! s:taxi_status()
+fun! s:taxi_balance()
     " Create a scratch window below that contains the total line
-    " of the taxi status output
+    " of the taxi balance output
     if s:is_closing
         return
     endif
 
-    let winnr = bufwinnr('^_taxistatus$')
+    let winnr = bufwinnr('^_taxibalance$')
     if ( winnr >  0 )
         execute winnr . 'wincmd w'
         execute 'normal ggdG'
     else
         setl splitbelow
-        5new _taxistatus
+        5new _taxibalance
         setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile nowrap
     endif
 
-    let result = "Could not read the status"
+    let result = "Could not read the balance"
     let balance = systemlist('taxi zebra balance')
 
     call append(0, balance)
     wincmd k
 endfun
 
-fun! s:taxi_status_close()
+fun! s:taxi_balance_close()
     let s:is_closing = 1
-    " Close the status scratch window
-    let winnr = bufwinnr('^_taxistatus$')
+    " Close the balance scratch window
+    let winnr = bufwinnr('^_taxibalance$')
     if ( winnr >  0 )
         execute winnr . 'wincmd w'
         execute 'wincmd q'
