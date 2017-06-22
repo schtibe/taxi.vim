@@ -106,19 +106,14 @@ fun! s:taxi_status()
         execute 'normal ggdG'
     else
         setl splitbelow
-        2new _taxistatus
+        5new _taxistatus
         setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile nowrap
     endif
 
     let result = "Could not read the status"
-    let status = systemlist('taxi status')
-    for line in status
-        if line =~ '^Total'
-            let result = line
-        endif
-    endfor
+    let balance = systemlist('taxi zebra balance')
 
-    call append(0, [ result ])
+    call append(0, balance)
     wincmd k
 endfun
 
