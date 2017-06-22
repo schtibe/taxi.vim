@@ -1,14 +1,18 @@
 # taxi.vim
 
-Vim plugin for the [taxi timesheeting tool](https://github.com/sephii/taxi/)
+Vim plugin for the [taxi timesheeting tool](https://github.com/sephii/taxi/) 
+that makes your life easier
+
+![taxi.vim Screenshot](taxi-vim.png)
 
 
 ## Features
 
 * Syntax highlighting
-* Alias completion
-* Output of the balance
+* Alias completion when adding a new line
+* Output of the balance ever time the timesheet gets saved
 * Aligning the timesheet entries
+* Automatic async update of the aliases
 
 
 ## Installation
@@ -31,7 +35,7 @@ configuration folder:
 To complete the aliases use vim's [omnicomplete functionality](http://vim.wikia.com/wiki/Omni_completion):
 
 Start typing a word, then hit `CTRL-x` and `CTRL-o` consecutively to complete 
-it.
+it. The completion is automatically spawned when adding a new line.
 
 
 ## Special Thanks
