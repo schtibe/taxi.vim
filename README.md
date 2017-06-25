@@ -1,6 +1,6 @@
 # taxi.vim
 
-Vim plugin for the [taxi timesheeting tool](https://github.com/sephii/taxi/) 
+Vim/Neovim plugin for the [taxi timesheeting tool](https://github.com/sephii/taxi/)
 that makes your life easier
 
 ![taxi.vim Screenshot](taxi-vim.png)
@@ -10,12 +10,18 @@ that makes your life easier
 
 * Syntax highlighting
 * Alias completion when adding a new line
-* Output of the balance ever time the timesheet gets saved
+* Output of the balance every time the timesheet gets saved
 * Aligning the timesheet entries
 * Automatic async update of the aliases
 
 
 ## Installation
+
+Make sure you have vim in incompatible mode:
+
+```
+set nocompatible
+```
 
 Simply add this repository to your plugin manager, e.g. [dein](https://github.com/Shougo/dein.vim):
 
