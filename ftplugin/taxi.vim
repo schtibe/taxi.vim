@@ -2,7 +2,8 @@
 set omnifunc=TaxiAliases
 set completeopt+=longest
 let s:pat = '^\([a-zA-Z0-9_?]\+\)\s\+\([0-9:?-]\+\)\s\+\(.*\)$'
-let s:cache_file = $HOME."/.local/share/nvim/taxi_aliases"
+" TODO is this a good cache location?
+let s:cache_file = $HOME."/.local/share/taxi/taxi_aliases"
 
 autocmd BufNewFile,BufRead *.tks :call TaxiAssmbleAliases()
 autocmd BufWritePost *.tks :call s:taxi_balance()
@@ -15,6 +16,8 @@ let s:aliases_raw = ""
 let s:is_closing = 0
 
 
+" TODO document and unclutter these callbacks
+" TODO add some test for vim > 8
 fun! s:nvim_process_aliases(job_id, data, event)
     call s:process_aliases(a:data)
 endfun
@@ -47,6 +50,10 @@ fun! s:cache_aliases(...)
     for alias in s:aliases
         call add(cache_aliases, join(alias, "|"))
     endfor
+    let directory = fnamemodify(s:cache_file, ":p:h")
+    if !isdirectory(directory)
+        call mkdir(directory)
+    endif
     call writefile(cache_aliases,  s:cache_file)
 endfun
 
@@ -68,14 +75,16 @@ fun! s:vim_update_handler(channel, msg)
 endfun
 
 fun! s:taxi_read_aliases()
-    let s:aliases = []
-    let cached_aliases = readfile(s:cache_file)
-    for alias in cached_aliases
-        let parts = split(alias, "|")
-        if len(parts) > 1
-            call add(s:aliases, [parts[0], parts[1]])
-        endif
-    endfor
+    if filereadable(s:cache_file)
+        let s:aliases = []
+        let cached_aliases = readfile(s:cache_file)
+        for alias in cached_aliases
+            let parts = split(alias, "|")
+            if len(parts) > 1
+                call add(s:aliases, [parts[0], parts[1]])
+            endif
+        endfor
+    endif
 endfun
 
 fun! TaxiAssmbleAliases()
