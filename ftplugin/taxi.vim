@@ -15,7 +15,16 @@ let s:aliases_raw = ""
 let s:is_closing = 0
 
 
-fun! s:process_aliases(job_id, data, event)
+fun! s:nvim_process_aliases(job_id, data, event)
+    call s:process_aliases(a:data)
+endfun
+
+fun! s:vim_process_aliases(channel, msg)
+    let aliases = split(a:msg)
+    call s:process_aliases(aliases)
+endfun
+
+fun! s:process_aliases(data)
     " Gather the aliases
     for alias in a:data
         if alias != ''
@@ -33,7 +42,7 @@ fun! s:process_aliases(job_id, data, event)
     endfor
 endfun
 
-fun! s:cache_aliases(job_id, data, event)
+fun! s:cache_aliases(...)
     let cache_aliases = []
     for alias in s:aliases
         call add(cache_aliases, join(alias, "|"))
@@ -41,9 +50,21 @@ fun! s:cache_aliases(job_id, data, event)
     call writefile(cache_aliases,  s:cache_file)
 endfun
 
-fun! s:update_handler(job_id, data, event) dict
+fun! s:nvim_update_handler(job_id, data, event) dict
+    let alias_callbacks = {
+                \ 'on_stdout': function('s:nvim_process_aliases'),
+                \ 'on_exit': function('s:cache_aliases')
+                \ }
     " When taxi update is done, run taxi alias
-    call jobstart(['taxi', 'alias'], s:alias_callbacks)
+    call jobstart(['taxi', 'alias'], alias_callbacks)
+endfun
+
+fun! s:vim_update_handler(channel, msg)
+    let alias_callbacks = {
+                \ 'out_cb': function('s:vim_process_aliases'),
+                \ 'exit_cb': function('s:cache_aliases')
+                \ }
+    call job_start(['taxi', 'alias'], alias_callbacks)
 endfun
 
 fun! s:taxi_read_aliases()
@@ -59,16 +80,20 @@ endfun
 
 fun! TaxiAssmbleAliases()
     call s:taxi_read_aliases()
-    let s:alias_callbacks = {
-                \ 'on_stdout': function('s:process_aliases'),
-                \ 'on_exit': function('s:cache_aliases')
-                \}
-    let s:update_callbacks = {
-                \    'on_stdout': function('s:update_handler')
-                \}
-
     " Run the taxi update
-    call jobstart(['taxi', 'update'], s:update_callbacks)
+    if has('nvim')
+        let s:update_callbacks = {
+                    \    'on_exit': function('s:nvim_update_handler')
+                    \ }
+
+        call jobstart(['taxi', 'update'], s:update_callbacks)
+    else
+        let s:update_callbacks = {
+                    \    'exit_cb': function('s:vim_update_handler')
+                    \ }
+
+        call job_start(['taxi', 'update'], s:update_callbacks)
+    endif
 endfun
 
 
