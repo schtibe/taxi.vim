@@ -22,8 +22,9 @@ fun! s:nvim_process_aliases(job_id, data, event)
     call s:process_aliases(a:data)
 endfun
 
+
 fun! s:vim_process_aliases(channel, msg)
-    let aliases = split(a:msg)
+    let aliases = split(a:msg, "\n")
     call s:process_aliases(aliases)
 endfun
 
