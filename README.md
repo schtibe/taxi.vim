@@ -56,3 +56,5 @@ vim taxi functionality.
 
 * The alias loading thing seems a bit unstable yet. Also, I'm not a 100% sure
     that new aliases are loaded correctly
+* The alias caching file is growing to a very big size because the aliases are
+    probably in there multiple times
