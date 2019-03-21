@@ -58,3 +58,15 @@ vim taxi functionality.
     that new aliases are loaded correctly
 * The alias caching file is growing to a very big size because the aliases are
     probably in there multiple times
+
+## Stuff
+
+### I have a date format that is not parsed by the syntax file
+
+Edit the syntax/taxi.vim file, then add a new line containing a regular 
+expression for the date format, like
+
+```syn match date "^\d\+/\d\+/\d\d"```
+
+and make a pull request if you think it is a commonly used date format that
+should be covered by the syntax file.
