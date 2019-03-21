@@ -14,6 +14,7 @@ syn region committed start="=" end="$"
 syn match date "^\d\d\d\d-\d\d-\d\d"
 syn match date "^\d\+/\d\+/\d\d"
 syn match date "^\d\+/\d\+/\d\d\d\d"
+syn match date "^\d\+\.\d\+\.\d\d\d\d.*"
 hi def link date Label
 hi def link comment Comment
 hi def link tksWR PreProc
