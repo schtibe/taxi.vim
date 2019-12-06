@@ -52,13 +52,6 @@ to it. To me it made sense to include this here to have a single point of
 vim taxi functionality.
 
 
-## Bugs
-
-* The alias loading thing seems a bit unstable yet. Also, I'm not a 100% sure
-    that new aliases are loaded correctly
-* The alias caching file is growing to a very big size because the aliases are
-    probably in there multiple times
-
 ## Stuff
 
 ### I have a date format that is not parsed by the syntax file
