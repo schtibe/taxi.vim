@@ -11,8 +11,8 @@ autocmd QuitPre      <buffer> :call s:taxi_balance_close()
 autocmd BufWritePre  *.tks :call TaxiFormatFile()
 autocmd InsertEnter  <buffer> :call TaxiInsertEnter()
 
-let s:aliases = []
-let s:aliases_raw = ""
+let s:cached_aliases = []
+let s:updated_aliases = []
 let s:is_closing = 0
 
 
@@ -38,17 +38,30 @@ fun! s:process_aliases(data)
                 let text = join(parts[3:], ' ')
                 let value = [alias, text]
 
-                if index(s:aliases, value) == -1
-                    call add(s:aliases, value)
-                endif
+                call add(s:updated_aliases, value)
+
             endif
+        endif
+    endfor
+
+    " remove the aliases in the cache that aren't in the update
+    for alias in s:cached_aliases
+        if index(s:updated_aliases, alias) == -1
+            let pos = index(s:cached_aliases, alias)
+            call remove(s:cached_aliases, pos)
+        endif
+    endfor
+
+    for alias in s:updated_aliases
+        if index(s:cached_aliases, alias) == -1
+            call add(s:cached_aliases, alias)
         endif
     endfor
 endfun
 
 fun! s:cache_aliases(...)
     let cache_aliases = []
-    for alias in s:aliases
+    for alias in s:cached_aliases
         call add(cache_aliases, join(alias, "|"))
     endfor
     let directory = fnamemodify(s:cache_file, ":p:h")
@@ -77,12 +90,12 @@ endfun
 
 fun! s:taxi_read_aliases()
     if filereadable(s:cache_file)
-        let s:aliases = []
+        let s:cached_aliases = []
         let cached_aliases = readfile(s:cache_file)
         for alias in cached_aliases
             let parts = split(alias, "|")
             if len(parts) > 1
-                call add(s:aliases, [parts[0], parts[1]])
+                call add(s:cached_aliases, [parts[0], parts[1]])
             endif
         endfor
     endif
@@ -118,7 +131,7 @@ fun! TaxiAliases(findstart, base)
         return start
     else
         let res = []
-        for alias in s:aliases
+        for alias in s:cached_aliases
             if alias[0] =~ '^' . a:base
                 call add(res, { 'word': alias[0], 'menu': alias[1] })
             endif
