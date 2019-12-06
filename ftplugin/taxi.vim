@@ -15,8 +15,10 @@ let s:cached_aliases = []
 let s:updated_aliases = []
 let s:is_closing = 0
 
-
-" TODO document and unclutter these callbacks
+" TODO i wonder if all the hassle with adding and removing the element from
+" our local cache is worth it, or if we should just replace the entire array
+" with the data from the update. On the other hand, if there's an ongoing
+" completion, sweeping away the alias list might be weird for the UX 
 " TODO add some test for vim > 8
 fun! s:nvim_process_aliases(job_id, data, event)
     call s:process_aliases(a:data)
@@ -28,8 +30,8 @@ fun! s:vim_process_aliases(channel, msg)
     call s:process_aliases(aliases)
 endfun
 
-fun! s:process_aliases(data)
-    " Gather the aliases
+" Parse the aliases from the taxi command
+fun! s:parse_updated_aliases(data)
     for alias in a:data
         if alias != ''
             let parts = split(alias)
@@ -43,15 +45,20 @@ fun! s:process_aliases(data)
             endif
         endif
     endfor
+endfun
 
-    " remove the aliases in the cache that aren't in the update
+" remove the aliases in the cache that aren't in the update
+fun! s:remove_removed_aliases()
     for alias in s:cached_aliases
         if index(s:updated_aliases, alias) == -1
             let pos = index(s:cached_aliases, alias)
             call remove(s:cached_aliases, pos)
         endif
     endfor
+endfun
 
+" Remove the aliases from the 
+fun! s:add_new_aliases()
     for alias in s:updated_aliases
         if index(s:cached_aliases, alias) == -1
             call add(s:cached_aliases, alias)
@@ -59,6 +66,13 @@ fun! s:process_aliases(data)
     endfor
 endfun
 
+fun! s:process_aliases(data)
+    call s:parse_updated_aliases(a:data)
+    call s:remove_removed_aliases()
+    call s:add_new_aliases()
+endfun
+
+" Write the aliases to the cache file
 fun! s:cache_aliases(...)
     let cache_aliases = []
     for alias in s:cached_aliases
@@ -71,6 +85,7 @@ fun! s:cache_aliases(...)
     call writefile(cache_aliases,  s:cache_file)
 endfun
 
+" Callback for the background process of updating the aliases for nvim
 fun! s:nvim_update_handler(job_id, data, event) dict
     let alias_callbacks = {
                 \ 'on_stdout': function('s:nvim_process_aliases'),
@@ -80,6 +95,7 @@ fun! s:nvim_update_handler(job_id, data, event) dict
     call jobstart(['taxi', 'alias'], alias_callbacks)
 endfun
 
+" Callback for the background process of updating the aliases for vim
 fun! s:vim_update_handler(channel, msg)
     let alias_callbacks = {
                 \ 'out_cb': function('s:vim_process_aliases'),
@@ -88,6 +104,7 @@ fun! s:vim_update_handler(channel, msg)
     call job_start(['taxi', 'alias'], alias_callbacks)
 endfun
 
+" Read the aliases from the cache file
 fun! s:taxi_read_aliases()
     if filereadable(s:cache_file)
         let s:cached_aliases = []
@@ -101,6 +118,9 @@ fun! s:taxi_read_aliases()
     endif
 endfun
 
+" Assemble the aliases
+" On one hand this reads the cache file for speed, on the other hand
+" it calls a background process which updates the aliases from zebra
 fun! TaxiAssmbleAliases()
     call s:taxi_read_aliases()
     " Run the taxi update
