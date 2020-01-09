@@ -174,7 +174,7 @@ fun! s:taxi_balance()
         execute 'normal ggdG'
     else
         setl splitbelow
-        5new _taxibalance
+        7new _taxibalance
         setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile nowrap
     endif
 
