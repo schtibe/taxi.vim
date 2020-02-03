@@ -19,18 +19,18 @@ let s:is_closing = 0
 " our local cache is worth it, or if we should just replace the entire array
 " with the data from the update. On the other hand, if there's an ongoing
 " completion, sweeping away the alias list might be weird for the UX 
-" TODO add some test for vim > 8
 fun! s:nvim_process_aliases(job_id, data, event)
-    call s:process_aliases(a:data)
+    call s:parse_updated_aliases(a:data)
 endfun
 
 
 fun! s:vim_process_aliases(channel, msg)
     let aliases = split(a:msg, "\n")
-    call s:process_aliases(aliases)
+    call s:parse_updated_aliases(aliases)
 endfun
 
-" Parse the aliases from the taxi command
+" Parse the aliases from the taxi command, save them into a 
+" intermediate list for further processing
 fun! s:parse_updated_aliases(data)
     for alias in a:data
         if alias != ''
@@ -47,7 +47,7 @@ fun! s:parse_updated_aliases(data)
     endfor
 endfun
 
-" remove the aliases in the cache that aren't in the update
+" Remove the aliases from our list that aren't in the taxi command anymore
 fun! s:remove_removed_aliases()
     for alias in s:cached_aliases
         if index(s:updated_aliases, alias) == -1
@@ -57,23 +57,30 @@ fun! s:remove_removed_aliases()
     endfor
 endfun
 
-" Remove the aliases from the 
+" Add the new aliases from the taxi command to our list
 fun! s:add_new_aliases()
+    let aliases = deepcopy(s:cached_aliases)
     for alias in s:updated_aliases
-        if index(s:cached_aliases, alias) == -1
-            call add(s:cached_aliases, alias)
+        if index(aliases, alias) == -1
+            call add(aliases, alias)
         endif
     endfor
+
+    let s:cached_aliases = aliases
 endfun
 
-fun! s:process_aliases(data)
-    call s:parse_updated_aliases(a:data)
-    call s:remove_removed_aliases()
+" Process the aliases after they've been collected from the command
+" It's essential that this is called after the taxi alias output is 
+" being processed, because in vim the function _add_new_aliases_ returns 
+" several times when it's running and outputting
+fun! s:process_aliases(...)
     call s:add_new_aliases()
+    call s:remove_removed_aliases()
+    call s:cache_aliases()
 endfun
 
 " Write the aliases to the cache file
-fun! s:cache_aliases(...)
+fun! s:cache_aliases()
     let cache_aliases = []
     for alias in s:cached_aliases
         call add(cache_aliases, join(alias, "|"))
@@ -89,7 +96,7 @@ endfun
 fun! s:nvim_update_handler(job_id, data, event) dict
     let alias_callbacks = {
                 \ 'on_stdout': function('s:nvim_process_aliases'),
-                \ 'on_exit': function('s:cache_aliases')
+                \ 'on_exit': function('s:process_aliases')
                 \ }
     " When taxi update is done, run taxi alias
     call jobstart(['taxi', 'alias'], alias_callbacks)
@@ -99,7 +106,7 @@ endfun
 fun! s:vim_update_handler(channel, msg)
     let alias_callbacks = {
                 \ 'out_cb': function('s:vim_process_aliases'),
-                \ 'exit_cb': function('s:cache_aliases')
+                \ 'exit_cb': function('s:process_aliases')
                 \ }
     call job_start(['taxi', 'alias'], alias_callbacks)
 endfun
