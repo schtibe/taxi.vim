@@ -1,12 +1,5 @@
 # taxi.vim
 
-**Vim support broken**
-
-Currently the plugin seems to be broken in vim. The updating of aliases isn't 
-working as expected. I will try to look into it as soon as possible.
-
----
-
 Vim/Neovim plugin for the [taxi timesheeting tool](https://github.com/sephii/taxi/)
 that makes your life easier
 
