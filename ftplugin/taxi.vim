@@ -99,7 +99,7 @@ fun! s:nvim_update_handler(job_id, data, event) dict
                 \ 'on_exit': function('s:process_aliases')
                 \ }
     " When taxi update is done, run taxi alias
-    call jobstart(['taxi', 'alias'], alias_callbacks)
+    call jobstart(['taxi', 'alias', 'list', '--no-inactive'], alias_callbacks)
 endfun
 
 " Callback for the background process of updating the aliases for vim
@@ -108,7 +108,7 @@ fun! s:vim_update_handler(channel, msg)
                 \ 'out_cb': function('s:vim_process_aliases'),
                 \ 'exit_cb': function('s:process_aliases')
                 \ }
-    call job_start(['taxi', 'alias'], alias_callbacks)
+    call job_start(['taxi', 'alias', 'list', '--no-inactive'], alias_callbacks)
 endfun
 
 " Read the aliases from the cache file
