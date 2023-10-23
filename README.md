@@ -17,10 +17,11 @@ that makes your life easier
 
 ## Installation
 
-Make sure you have vim in incompatible mode:
+Make sure you have vim in incompatible mode. Add the following lines to your `~/.config/nvim/config` or  `~/.vimrc` file:
 
 ```
 set nocompatible
+filetype plugin on
 ```
 
 Simply add this repository to your plugin manager, e.g. [dein](https://github.com/Shougo/dein.vim):
@@ -32,8 +33,15 @@ call dein#add('schtibe/taxi.vim')
 If you don't have one, put the content of the folders in your vim 
 configuration folder: 
 
-* ~/.config/nvim/syntax and ~/.config/nvim/ftplugin) in case of neovim
-* ~/.vim/syntax and ~/.vim/ftplugin in case of vim
+### Neovim
+* ~/.config/nvim/syntax
+* ~/.config/nvim/ftplugin
+* ~/.config/nvim/ftdetect
+
+### Vim
+* ~/.vim/syntax
+* ~/.vim/ftplugin
+* ~/.vim/ftdetect
 
 
 ## Usage of the alias completion
